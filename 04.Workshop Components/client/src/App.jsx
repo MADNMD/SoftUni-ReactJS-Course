@@ -1,33 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+
+import * as userService from './services/userService'
+
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { Search } from './components/Search';
+
+import './App.css';
+import { UserList } from './components/UserList';
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    userService.getAll()
+      .then(users => {
+        setUsers(users);
+      })
+      .catch(err => {
+        console.log('Error' + err);
+      })
+  }, []);
+
+  const onUserCreateSubmit = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const data = Object.fromEntries(formData);
+
+    const createdUser = await userService.createOne(data);
+
+    setUsers(users => [...users, createdUser]); // тук съзадаваме нова референция и добавяме нови потребител;
+  }
+
+  const onUserEditSubmit = async (event, userId) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const data = Object.fromEntries(formData);
+
+    const editUser = await userService.editOne(userId, data);
+
+    setUsers(users => users.map(user => user._id === userId ? editUser : user));
+  }
+
+  const onUserDelete = async (userId) => {
+    await userService.deleteUser(userId);
+
+    setUsers(users => users.filter(user => user._id !== userId));
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+
+      <Header />
+
+      <main className='main'>
+        <section className="card users-container">
+
+          <Search />
+
+          <UserList users={users} onUserCreateSubmit={onUserCreateSubmit} onUserEditSubmit={onUserEditSubmit} onUserDelete={onUserDelete} />
+
+        </section>
+
+      </main>
+
+      <Footer />
+
     </>
   )
 }
