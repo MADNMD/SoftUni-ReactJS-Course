@@ -1,34 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from 'react-router-dom';
+
+import { CreatePage } from "./components/CreatePage";
+import { Dashboard } from "./components/Dashboard";
+import { DetailsPage } from "./components/DetailsPage";
+import { EditPage } from "./components/EditPage/EditPage";
+import { Footer } from "./components/Footer";
+import { Login } from "./components/Login";
+import { Navigation } from "./components/Navigation";
+import { Register } from "./components/Register";
+import { WelcomePage } from "./components/WelcomePage";
+import { AuthProvider } from './context/AuthContext';
+import { Logout } from './components/Logout';
+import { RouteGuard } from './components/RouteGuards';
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <AuthProvider>
+      <Navigation />
+      <main id="content">
+        <Routes>
+          <Route path='/' element={<WelcomePage />} />
+          <Route path='/catalog' element={<Dashboard />} />
+          <Route path='/user/login' element={<Login />} />
+          <Route path='/user/register' element={<Register />} />
+          <Route element={<RouteGuard />} >
+            <Route path='/create-page' element={<CreatePage />} />
+            <Route path='/details/:petId' element={<DetailsPage />} />
+            <Route path='/edit/:petId' element={<EditPage />} />
+          </Route>
+          <Route path='/user/logout' element={<Logout />} />
+        </Routes>
+      </main>
+      <Footer />
+    </AuthProvider>
   )
 }
 
