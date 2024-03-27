@@ -1,0 +1,1 @@
+export { FruitItem } from './FruitItem';
